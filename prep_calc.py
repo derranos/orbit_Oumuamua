@@ -3,6 +3,8 @@ import numpy as np
 from astropy import units as u
 from astropy import constants as const
 from solver import solve_3x3_cramer
+import pickle
+
 
 
 # Гравитационный параметр Солнца (k^2) в км^3/с^2
@@ -51,9 +53,9 @@ with open(CSV_FILENAME, 'r', encoding='utf-8') as f:
 
 
 # возьмем первое, среднее и последнее наблюдения
-idx1 = 0
-idx2 = len(all_t_sec) // 2  # Целочисленное деление
-idx3 = len(all_t_sec) - 1  # Последний элемент
+idx1 = 10
+idx2 = 20  # Целочисленное деление
+idx3 = 35  # Последний элемент
 
 # Извлекаем данные для 3-х точек
 t1, t2, t3 = all_t_sec[idx1], all_t_sec[idx2], all_t_sec[idx3]
@@ -79,11 +81,11 @@ r2_mag_old = 0.0
 
 # Максимальное количество итераций, которое выполнит цикл,
 # прежде чем остановиться (даже если решение не сошлось). Предотвращает бесконечный цикл.
-max_iterations = 100
+max_iterations = 1000
 
 # Порог сходимости (в километрах). Если изменение магнитуды r2
 # между итерациями меньше этого значения, считаем, что решение найдено.
-tolerance = 1e-12  # (in km)
+tolerance = 1e-15  # (in km)
 
 # Коэффициенты Лагранжа (f и g). Они связывают положения и скорости
 # в разные моменты времени. Будут пересчитываться на каждой итерации.
@@ -183,3 +185,11 @@ if converged and r1_vec is not None and r3_vec is not None and abs(D) > 1e-15:
 
     r_final = r2_vec * u.km
     v_final = v2_vec * u.km / u.s
+
+    data = {'r_vec': list(r_final), 'v_final': list(v_final)}
+    dbfile = open('data.txt', 'w+')
+    dbfile.write(str(t2) + '\n')
+
+    dbfile.write(' '.join([str(i) for i in r2_vec]) + '\n')
+    dbfile.write(' '.join([str(i) for i in v2_vec]) + '\n')              
+    dbfile.close()

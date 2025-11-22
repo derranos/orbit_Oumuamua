@@ -78,7 +78,7 @@ def get_ground_observer_heliocentric_vector(obs_time, obs_code_log):
             line_obs = line_obs.split()
             code = line_obs[0]
             if code == obs_code_log:
-                lon_deg, cos_val, sin_val = float(line_obs[1]), float(line_obs[2]), float(line_obs[2])
+                lon_deg, cos_val, sin_val = float(line_obs[1]), float(line_obs[2]), float(line_obs[3])
 
     # долготу в радианы
     lon_rad = math.radians(lon_deg)
@@ -136,14 +136,14 @@ with (open("1I.txt", mode='r', encoding="UTF-8") as file):
         start_year = 2017
         start_month = 10
         day = 14.43936
-        start_total_sec = sum(i * 24 * 3600 for i in days[:start_month]) + day * 24 * 3600
+        start_total_sec = sum(i * 24 * 3600 for i in days[:start_month - 1]) + day * 24 * 3600
         #---------------------------
         # для дальнейшего вычисления координат гелиоцентрического положения обсерватории
 
         t_base = Time(f"{start_year}-{start_month}-{int(day)} 00:00:00", scale='utc')
         t0 = t_base + ((day - int(day)) * u.day)
 
-
+        conter = 0
         while line := file.readline():
 
             index_plus = line.find('+')
@@ -157,11 +157,13 @@ with (open("1I.txt", mode='r', encoding="UTF-8") as file):
 
             type_data = data[1][0]
 
-            year = int(''.join(i for i in data[1] if i.isdigit())) # избавляюсь от букв в годе
+        
+            # year = int(''.join(i for i in data[1] if i.isdigit())) # избавляюсь от букв в годе
+            year = 2017
             month = int(data[2])
             day = float(data[3])
             total_sec = (year - start_year) * (365 * 24 * 3600) + \
-                        sum(i * 24 * 3600 for i in days[:month]) + day * 24 * 3600
+                        sum(i * 24 * 3600 for i in days[:month - 1]) + day * 24 * 3600
             sec = total_sec - start_total_sec
 
             if type_data.lower() != 's': # данные не со спутника Хабл
